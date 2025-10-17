@@ -1,0 +1,710 @@
+{
+  "name": "Finance Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fc5768d6-8613-4fda-8eb5-689760bab335",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c6a06939-e0da-4870-bb5e-2be48d221adc",
+      "name": "Webhook",
+      "webhookId": "fc5768d6-8613-4fda-8eb5-689760bab335"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af35913e-0cc1-418c-8df4-566af40e9313",
+              "name": "event",
+              "value": "={{ $json.body.event }}",
+              "type": "string"
+            },
+            {
+              "id": "b8f6c847-f5a4-45a0-a6a3-e4529d7cf293",
+              "name": "session",
+              "value": "={{ $json.body.session }}",
+              "type": "string"
+            },
+            {
+              "id": "21132b89-52a4-4279-a1a1-c13550c0cf03",
+              "name": "fromMe",
+              "value": "={{ $json.body.payload.fromMe }}",
+              "type": "string"
+            },
+            {
+              "id": "7f049d27-aeb6-4547-8aff-39dd6ce45eab",
+              "name": "from",
+              "value": "={{ $json.body.payload.from }}",
+              "type": "string"
+            },
+            {
+              "id": "c4b98dc3-4474-433a-b7c2-e3f0d63672d9",
+              "name": "pushName",
+              "value": "={{ $json.body.payload._data.Info.PushName }}",
+              "type": "string"
+            },
+            {
+              "id": "53564531-f8fb-48cb-8f7d-48a20c995e3d",
+              "name": "payloadId",
+              "value": "={{ $json.body.payload.id }}",
+              "type": "string"
+            },
+            {
+              "id": "449d0c57-1309-450e-9643-b5037fa25122",
+              "name": "message",
+              "value": "={{ $json.body.payload.body }}",
+              "type": "string"
+            },
+            {
+              "id": "7a6ebe72-1eee-4b68-b021-816fc2d26825",
+              "name": "mediaUrl",
+              "value": "={{ $json.body.payload.media.url }}",
+              "type": "string"
+            },
+            {
+              "id": "d8531e34-b24d-4e4d-a821-25069cc8831b",
+              "name": "mimeType",
+              "value": "={{ $json.body.payload.media.mimetype }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b263cc33-42b2-4566-89be-8aa5599dd8c1",
+      "name": "Dados do WhatsApp"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message }}",
+                    "rightValue": "message",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "9d92b615-5f4c-42a0-83ed-b98a7e065c90"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7512b2e1-9386-4858-9ad4-473eea9bc225",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3c139d91-45e4-4562-a934-f0942bcdac4b",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "95203e85-6b10-47da-89e8-4628a58c71ca",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um agente financeiro responsável por classificar transações e extrair valores a partir de mensagens de texto ou imagens em base64. Sempre retorne apenas um JSON seguindo estritamente o formato abaixo:\n\n{\n  \"category\": \"string\",\n  \"value\": number,\n  \"createdAt\": \"DD/MM/AAAA HH:MM:SS\",\n  \"isExpense\": boolean\n}\n\nEntrada: texto ou imagem em base64.\nSaída esperada: JSON.\n\nData do envio: {{ $('Webhook').item.json.body.payload._data.Info.Timestamp }}\nMensagem texto: {{ $json.message }}\nImagem em texto: {{ $json.image }}\nÁudio em texto: {{ $json.audio }}",
+        "options": {
+          "systemMessage": "- Somente JSON: nunca adicione explicações, comentários ou texto adicional.\n- Formato fixo: respeite exatamente as chaves e tipos indicados.\n- Categoria: se não for possível identificar, use \"Outro\".\n- Valor: se não for possível identificar, use -1.\n- isExpense: coloque false se a mensagem não corresponder a um gasto real (ex.: foto sem recibo, mensagem aleatória, informação irrelevante).\n- Data e hora: A hora deve seguir o formato DD/MM/AAAA HH:MM:SS com o fuso horário de São Paulo, Brasil.\n- Priorize a mensagem enviada nessa sequencia: Imagem em texto, caso não tenha Áudio em texto e caso não tenha Mensagem texto.\n- Nunca retorne marcadores como ``` para identificar o JSON, apenas do { inicial até o } final"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        -16
+      ],
+      "id": "c226d4e6-ae5a-44e5-aa08-3d063145aa09",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        176
+      ],
+      "id": "2ce69337-ec9d-4707-b361-ec309e03c0e9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ToFm6xrw57uPHI17",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = JSON.parse($input.first().json.output);\n\nreturn parsed;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        -16
+      ],
+      "id": "c3d6de79-06c2-4445-af82-41648b39f1ab",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1UOgKm9hzlw9U2uOobI7arCOcw21M3LY308qRfnGH7n0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Gastos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UOgKm9hzlw9U2uOobI7arCOcw21M3LY308qRfnGH7n0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Categoria": "={{ $json.category }}",
+            "Valor": "={{ $json.value }}",
+            "Data": "={{ $json.createdAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valor",
+              "displayName": "Valor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2272,
+        -32
+      ],
+      "id": "924c99ad-c3de-4454-9104-a0befc2d9aef",
+      "name": "Salvar na Planilha",
+      "credentials": {
+        "googleApi": {
+          "id": "av5a7FGxHYHYcG7d",
+          "name": "Google Service Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "20561a27-4225-4ed6-ad06-712ede52bc18",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "1ad646d2-0f0c-4f6c-a3ae-7495abd1cca4",
+              "name": "image",
+              "value": "={{ $json.imageText }}",
+              "type": "string"
+            },
+            {
+              "id": "672b9c47-287f-426e-a135-455b9fc5ea07",
+              "name": "audio",
+              "value": "={{ $json.audioText }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1424,
+        -16
+      ],
+      "id": "09a927f9-9971-483c-bd01-89344fd5b9dc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "A imagem enviada é uma conta à pagar (boleto) ou um comprovante de pagamento, identifique o valor total a ser pago e qual categoria se encaixa esse pagamento, caso não consiga identificar a categoria coloque como \"Outro\"",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        160
+      ],
+      "id": "d65d8472-e2b0-4530-8136-4b3b3387651e",
+      "name": "Analyze image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ToFm6xrw57uPHI17",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d92c50d1-1751-4d2e-bb53-847eaf77ac55",
+              "name": "imageText",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        160
+      ],
+      "id": "63f71efb-c678-4492-b972-1d91cd2e96aa",
+      "name": "Imagem para Texto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e2277e79-ddeb-42b9-b7c9-d1b7f43b26dc",
+              "leftValue": "={{ $json.isExpense }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        -16
+      ],
+      "id": "7a94768d-eeb7-4255-9b27-364c0afa211c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.mediaUrl.replace('localhost:3000', 'host.docker.internal:3000') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wahaApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        352
+      ],
+      "id": "f65aa119-e4a9-4d29-ab60-a83f3325e626",
+      "name": "Baixar áudio",
+      "credentials": {
+        "wahaApi": {
+          "id": "I1TVzFu1OEqYSgwx",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.mediaUrl.replace('localhost:3000', 'host.docker.internal:3000') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wahaApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        160
+      ],
+      "id": "4c385305-e7bb-4ce8-8fc6-5a820ed0c404",
+      "name": "Baixar imagem",
+      "credentials": {
+        "wahaApi": {
+          "id": "I1TVzFu1OEqYSgwx",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "O áudio enviada é uma conta à pagar ou um comprovante de pagamento, identifique o valor total a ser pago e qual categoria se encaixa esse pagamento, caso não consiga identificar a categoria coloque como \"Outro\"",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        352
+      ],
+      "id": "76fb6836-cae1-49b0-966e-23337f7720f1",
+      "name": "Analyze audio",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ToFm6xrw57uPHI17",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "512ee02b-d424-4a96-837f-7852deb21e8c",
+              "name": "audioText",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        352
+      ],
+      "id": "9824e0ec-b8d0-48b2-942e-92416c873b90",
+      "name": "Áudio para texto"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dados do WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados do WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixar imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixar áudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Imagem para Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagem para Texto": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Salvar na Planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar imagem": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar áudio": {
+      "main": [
+        [
+          {
+            "node": "Analyze audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze audio": {
+      "main": [
+        [
+          {
+            "node": "Áudio para texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Áudio para texto": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4fc17e93-4f6c-44dd-8d6b-8cc6502e9754",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4f662d482a999591bc2e8cf2b2e1d8e8e31f16d1a743e062c313e18934cd94e"
+  },
+  "id": "VlXty1hmkbdYplAR",
+  "tags": [
+    {
+      "createdAt": "2025-10-17T23:03:06.192Z",
+      "updatedAt": "2025-10-17T23:03:06.192Z",
+      "id": "gpytcPYkVbVG2MIR",
+      "name": "Dev de Negócios"
+    }
+  ]
+}
