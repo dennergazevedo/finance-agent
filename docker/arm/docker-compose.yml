@@ -1,28 +1,8 @@
 version: '3.8'
 
 services:
-  redis:
-    image: redis:latest
-    command: redis-server --requirepass default
-    environment:
-      REDIS_USER: default
-      REDIS_PASSWORD: devdenegocios
-    ports:
-      - "6379:6379"
-
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: default
-      POSTGRES_PASSWORD: default
-      POSTGRES_DB: default
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
   waha:
-    image: devlikeapro/waha:arm-2025.6.4
+    image: devlikeapro/waha:arm-2025.10.3
     environment:
       WHATSAPP_HOOK_URL: http://host.docker.internal:5678/webhook/webhook
       WHATSAPP_DEFAULT_ENGINE: GOWS
@@ -47,7 +27,6 @@ services:
       - "5678:5678"
 
 volumes:
-  pgdata:
   waha_sessions:
   waha_media:
   n8n_data:
