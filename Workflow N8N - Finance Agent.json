@@ -216,7 +216,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const parsed = JSON.parse($input.first().json.output);\n\nreturn parsed;"
+        "jsCode": "const cleanedJson = $input.first().json.output\n  .replace(/```/g, '')\n  .replace(/\\bjson\\b/g, '')\n  .trim();\n\nconst parsed = JSON.parse(cleanedJson);\n\nreturn parsed;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -693,7 +693,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "4fc17e93-4f6c-44dd-8d6b-8cc6502e9754",
+  "versionId": "939ba8ae-358a-443c-af4f-18c3eb0f3cee",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e4f662d482a999591bc2e8cf2b2e1d8e8e31f16d1a743e062c313e18934cd94e"
