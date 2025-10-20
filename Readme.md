@@ -73,10 +73,10 @@ Acesse a documentação oficial no site do [WAHA](https://waha.devlike.pro/docs/
 Acesse a documentação oficial no site do [N8N](https://docs.n8n.io/courses/level-one/chapter-6/)
 
 ## 🧑‍💻 Autor
-Denner Azevedo \n
-Tech Lead & Senior Engineer @ Cia. Hering \n
-💼 Focado em performance, automação, IA aplicada e integrações inteligentes \n
-📺 [YouTube](https://www.youtube.com/@devdenegociosmg)\n
+Denner Azevedo  
+Tech Lead & Senior Engineer @ Cia. Hering  
+💼 Focado em performance, automação, IA aplicada e integrações inteligentes  
+📺 [YouTube](https://www.youtube.com/@devdenegociosmg)  
 
 ## 🪪 Licença
 Este projeto está sob a licença MIT — sinta-se livre para usar, modificar e compartilhar.
