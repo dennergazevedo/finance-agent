@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   waha:
-    image: devlikeapro/waha:arm-2025.10.3
+    image: devlikeapro/waha:2025.10.4
     environment:
       WHATSAPP_HOOK_URL: http://host.docker.internal:5678/webhook/webhook
       WHATSAPP_DEFAULT_ENGINE: GOWS
